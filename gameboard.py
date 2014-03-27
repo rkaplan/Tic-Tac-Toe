@@ -2,6 +2,7 @@ class GameBoard():
     def __init__(self, dimension=3, playerStart=True):
         self.dimension = dimension
         self.grid = [['-' for col in range(dimension)] for row in range(dimension)]
+        self.playerStart = playerStart
         self.playerTurn = playerStart
         self.moves_made = 0
 
@@ -23,6 +24,9 @@ class GameBoard():
         self.playerTurn = not self.playerTurn
         self.moves_made += 1
 
+    def num_moves_made(self):
+        return self.moves_made
+
     def is_player_turn(self):
         return self.playerTurn
 
@@ -30,31 +34,34 @@ class GameBoard():
         return self.get_winner() is not None or self.is_full()
 
     def get_winner(self):
-        if self.has_won('X'):
+        if self.has_symbol_won('X'):
             return 'X'
-        if self.has_won('O'):
+        if self.has_symbol_won('O'):
             return 'O'
         return None
 
     def has_won(self, player):
-        return self.has_won_row(player) or self.has_won_col(player) or self.has_won_diag(player)
+        return self.has_symbol_won(self.translate(player))
 
-    def has_won_row(self, player):
+    def has_symbol_won(self, symbol):
+        return self.has_symbol_won_row(symbol) or self.has_symbol_won_col(symbol) or self.has_symbol_won_diag(symbol)
+
+    def has_symbol_won_row(self, symbol):
         for row in self.grid:
-            if player * self.dimension == ''.join(row):
+            if symbol * self.dimension == ''.join(row):
                 return True
         return False
 
-    def has_won_col(self, player):
+    def has_symbol_won_col(self, symbol):
         for c in range(self.dimension):
-            if player * self.dimension == ''.join([self.grid[r][c] for r in range(self.dimension)]):
+            if symbol * self.dimension == ''.join([self.grid[r][c] for r in range(self.dimension)]):
                 return True
         return False
 
-    def has_won_diag(self, player):
-        if player * self.dimension == ''.join([self.grid[i][i] for i in range(self.dimension)]):
+    def has_symbol_won_diag(self, symbol):
+        if symbol * self.dimension == ''.join([self.grid[i][i] for i in range(self.dimension)]):
             return True
-        if player * self.dimension == ''.join([self.grid[i][self.dimension - i - 1] for i in range(self.dimension)]):
+        if symbol * self.dimension == ''.join([self.grid[i][self.dimension - i - 1] for i in range(self.dimension)]):
             return True
         return False
 
@@ -63,3 +70,13 @@ class GameBoard():
 
     def avail_moves(self):
         return [(r, c) for c in range(self.dimension) for r in range(self.dimension) if self.grid[r][c] == '-']
+
+    def evaluate(self):
+        """The heuristic function to statically evaluate the board"""
+        return 0 # TODO: implement
+
+    def translate(self, player):
+        if self.playerStart == player:
+            return 'X'
+        else:
+            return 'O'
